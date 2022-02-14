@@ -1,6 +1,6 @@
 # Peque GraphQL
 
-![coverage](https://raw.githubusercontent.com/peque-ts/graphql/main/coverage-badge.svg)
+![coverage](https://github.com/peque-ts/graphql/raw/main/coverage-badge.svg)
 
 Peque GraphQL is an OOP transposition for Apollo Server Resolver.
 
