@@ -16,6 +16,8 @@ npm install @pequehq/graphql reflect-metadata
 ## Example
 
 ```typescript
+import { Resolver, ResolverService } from '@pequehq/graphql';
+
 @Resolver()
 class ResolverExample {
   @Query()
