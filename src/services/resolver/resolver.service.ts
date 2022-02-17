@@ -51,21 +51,30 @@ export class ResolverService {
     if (metadata.query) {
       for (const query of metadata.query) {
         const name = query.options?.name ?? query.method;
-        objectAssign('Query', { [name]: this.#buildMethodWithParams(instance, query.method) });
+        objectAssign('Query', {
+          [name]: async (parent, args, ctx, info) =>
+            await this.#buildMethodWithParams(instance, query.method)(parent, args, ctx, info),
+        });
       }
     }
 
     if (metadata.field) {
       for (const field of metadata.field) {
         const name = field.options?.name ?? field.method;
-        objectAssign(field.options.type, { [name]: this.#buildMethodWithParams(instance, field.method) });
+        objectAssign(field.options.type, {
+          [name]: async (parent, args, ctx, info) =>
+            await this.#buildMethodWithParams(instance, field.method)(parent, args, ctx, info),
+        });
       }
     }
 
     if (metadata.mutation) {
       for (const mutation of metadata.mutation) {
         const name = mutation.options?.name ?? mutation.method;
-        objectAssign('Mutation', { [name]: this.#buildMethodWithParams(instance, mutation.method) });
+        objectAssign('Mutation', {
+          [name]: async (parent, args, ctx, info) =>
+            await this.#buildMethodWithParams(instance, mutation.method)(parent, args, ctx, info),
+        });
       }
     }
 

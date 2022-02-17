@@ -16,8 +16,10 @@ test.before(async (context) => {
   @Resolver()
   class ResolverSchemaOne {
     @Query()
-    user(): unknown {
-      return [{ id: 1, name: 'name', surname: 'surname', location: 1 }];
+    user(): Promise<unknown> {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve([{ id: 1, name: 'name', surname: 'surname', location: 1 }]), 1000);
+      });
     }
 
     @Field({ type: 'User' })
