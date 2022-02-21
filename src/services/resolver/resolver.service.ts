@@ -14,8 +14,8 @@ import {
   IResolverServiceMetadata,
   ResolverDeclaration,
 } from '../../interfaces';
-import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 import { isClass } from '../../utils/class.utils';
+import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 
 export class ResolverService {
   #calculateType(options: IFieldOptions): string {
