@@ -1,15 +1,19 @@
-import { IResolvers } from '@graphql-tools/utils/Interfaces';
-
 import {
   ResolverFieldsMetadata,
   ResolverMutationsMetadata,
   ResolverParametersMetadata,
   ResolverQueriesMetadata,
 } from '../../constants/metadata.constants';
-import { IResolverFunction, IResolverParamType, IResolverServiceMetadata, ResolverDeclaration } from '../../interfaces';
+import {
+  IResolverFunction,
+  IResolverParamType,
+  IResolvers,
+  IResolverServiceMetadata,
+  ResolverDeclaration,
+} from '../../interfaces';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 
-export class ResolverService {
+class PequeGraphQLService {
   #buildMetadata(resolver: ResolverDeclaration): IResolverServiceMetadata {
     const prototype = Object.getPrototypeOf(resolver).constructor;
     return {
@@ -44,7 +48,7 @@ export class ResolverService {
   #buildInterface(instance: InstanceType<ResolverDeclaration>, metadata: IResolverServiceMetadata): IResolvers {
     const resolver: IResolvers = {};
 
-    const objectAssign = (key: string, property: object) => {
+    const objectAssign = (key: string, property: object): void => {
       Object.assign(resolver, { [key]: { ...resolver[key], ...property } });
     };
 
@@ -85,7 +89,7 @@ export class ResolverService {
     return ResolverStorage.getAll();
   }
 
-  get(resolvers: InstanceType<ResolverDeclaration>[], currentResolvers?: IResolvers | IResolvers[]): IResolvers[] {
+  build(resolvers: InstanceType<ResolverDeclaration>[], currentResolvers?: IResolvers | IResolvers[]): IResolvers[] {
     const arrResolvers: IResolvers[] = [];
 
     if (currentResolvers) {
@@ -102,3 +106,5 @@ export class ResolverService {
     return arrResolvers;
   }
 }
+
+export const PequeGraphQL = new PequeGraphQLService();
