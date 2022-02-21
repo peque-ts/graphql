@@ -1,4 +1,4 @@
-import { IResolverParamType } from './types';
+import { ClassDeclaration, IResolverParamType } from './types';
 
 export interface IResolverParameterMetadata {
   method: string;
@@ -22,7 +22,7 @@ export interface IMutationOptions {
 
 export interface IFieldOptions {
   name?: string;
-  type: string;
+  type: string | ClassDeclaration;
 }
 
 export type IResolverQueryMetadata = IResolverMetadata<IQueryOptions>;
