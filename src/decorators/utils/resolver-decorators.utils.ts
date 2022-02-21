@@ -1,6 +1,7 @@
 import { ResolverParametersMetadata } from '../../constants/metadata.constants';
 import { ReflectionHelper } from '../../helpers';
 import { IResolverMetadata, IResolverParamType } from '../../interfaces';
+import { isClass } from '../../utils/class.utils';
 
 interface IResolverMetadataOptions {
   target: object;
