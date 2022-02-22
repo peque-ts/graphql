@@ -10,4 +10,4 @@ type IResolverFunction = (parent: unknown, args: any, ctx: any, info: unknown) =
 type IResolverParamType = 'parent' | 'args' | 'ctx' | 'info';
 type ResolverDeclaration = ClassDeclaration;
 
-export type { IResolverFunction, IResolverParamType, ResolverDeclaration, IResolvers };
+export type { ClassDeclaration, IResolverFunction, IResolverParamType, ResolverDeclaration, IResolvers };

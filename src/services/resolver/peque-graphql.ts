@@ -5,15 +5,23 @@ import {
   ResolverQueriesMetadata,
 } from '../../constants/metadata.constants';
 import {
+  ClassDeclaration,
+  IFieldOptions,
   IResolverFunction,
   IResolverParamType,
   IResolvers,
   IResolverServiceMetadata,
   ResolverDeclaration,
 } from '../../interfaces';
+import { isClass } from '../../utils/class.utils';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 
-class PequeGraphQLService {
+export class PequeGraphQLService {
+  #calculateType(options: IFieldOptions): string {
+    const type = options.type as ClassDeclaration;
+    return isClass(type) ? type.name : options.type.toString();
+  }
+
   #buildMetadata(resolver: ResolverDeclaration): IResolverServiceMetadata {
     const prototype = Object.getPrototypeOf(resolver).constructor;
     return {
@@ -64,8 +72,9 @@ class PequeGraphQLService {
 
     if (metadata.field) {
       for (const field of metadata.field) {
+        const type = this.#calculateType(field.options);
         const name = field.options?.name ?? field.method;
-        objectAssign(field.options.type, {
+        objectAssign(type, {
           [name]: async (parent, args, ctx, info) =>
             await this.#buildMethodWithParams(instance, field.method)(parent, args, ctx, info),
         });

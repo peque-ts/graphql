@@ -11,9 +11,12 @@ import { Field } from './field.decorator';
 const test = suite('@Field');
 
 test('should load @Field metadata', async () => {
+  class UserClass {}
+
   const metadata: IResolverFieldMetadata[] = [
     { method: 'methodOne', options: { type: 'User' } },
     { method: 'methodTwo', options: { type: 'Location', name: 'location' } },
+    { method: 'methodThree', options: { type: UserClass } },
   ];
 
   class ResolverTest {
@@ -24,6 +27,11 @@ test('should load @Field metadata', async () => {
 
     @Field({ type: 'Location', name: 'location' })
     methodTwo(): void {
+      // noop.
+    }
+
+    @Field({ type: UserClass })
+    methodThree(): void {
       // noop.
     }
   }
