@@ -1,5 +1,3 @@
-import { IResolvers } from '@graphql-tools/utils/Interfaces';
-
 import {
   ResolverFieldsMetadata,
   ResolverMutationsMetadata,
@@ -11,13 +9,14 @@ import {
   IFieldOptions,
   IResolverFunction,
   IResolverParamType,
+  IResolvers,
   IResolverServiceMetadata,
   ResolverDeclaration,
 } from '../../interfaces';
 import { isClass } from '../../utils/class.utils';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 
-export class ResolverService {
+export class PequeGraphQLService {
   #calculateType(options: IFieldOptions): string {
     const type = options.type as ClassDeclaration;
     return isClass(type) ? type.name : options.type.toString();
@@ -57,7 +56,7 @@ export class ResolverService {
   #buildInterface(instance: InstanceType<ResolverDeclaration>, metadata: IResolverServiceMetadata): IResolvers {
     const resolver: IResolvers = {};
 
-    const objectAssign = (key: string, property: object) => {
+    const objectAssign = (key: string, property: object): void => {
       Object.assign(resolver, { [key]: { ...resolver[key], ...property } });
     };
 
@@ -99,7 +98,7 @@ export class ResolverService {
     return ResolverStorage.getAll();
   }
 
-  get(resolvers: InstanceType<ResolverDeclaration>[], currentResolvers?: IResolvers | IResolvers[]): IResolvers[] {
+  build(resolvers: InstanceType<ResolverDeclaration>[], currentResolvers?: IResolvers | IResolvers[]): IResolvers[] {
     const arrResolvers: IResolvers[] = [];
 
     if (currentResolvers) {
@@ -116,3 +115,5 @@ export class ResolverService {
     return arrResolvers;
   }
 }
+
+export const PequeGraphQL = new PequeGraphQLService();

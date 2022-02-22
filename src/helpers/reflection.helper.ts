@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 export class ReflectionHelper<TMetadata> {
   constructor(private key: string | symbol) {}
 

@@ -1,9 +1,13 @@
-export interface Type<T = any> extends Function {
+interface Type<T = any> extends Function {
   new (...args: any[]): T;
 }
 
-export type ClassDeclaration = Type;
+type ClassDeclaration = Type;
 
-export type IResolverFunction = (parent: unknown, args: any, ctx: any, info: unknown) => unknown;
-export type IResolverParamType = 'parent' | 'args' | 'ctx' | 'info';
-export type ResolverDeclaration = ClassDeclaration;
+type IResolvers = Record<string, any>;
+
+type IResolverFunction = (parent: unknown, args: any, ctx: any, info: unknown) => unknown;
+type IResolverParamType = 'parent' | 'args' | 'ctx' | 'info';
+type ResolverDeclaration = ClassDeclaration;
+
+export type { ClassDeclaration, IResolverFunction, IResolverParamType, ResolverDeclaration, IResolvers };
