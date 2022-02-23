@@ -7,6 +7,7 @@ import {
 import {
   ClassDeclaration,
   IFieldOptions,
+  IQueryTypes,
   IResolverFunction,
   IResolverParamType,
   IResolvers,
@@ -15,6 +16,7 @@ import {
 } from '../../interfaces';
 import { isClass } from '../../utils/class.utils';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
+import { withFilter } from 'graphql-subscriptions';
 
 export class PequeGraphQLService {
   #calculateType(options: IFieldOptions): string {
@@ -56,40 +58,39 @@ export class PequeGraphQLService {
   #buildInterface(instance: InstanceType<ResolverDeclaration>, metadata: IResolverServiceMetadata): IResolvers {
     const resolver: IResolvers = {};
 
-    const objectAssign = (key: string, property: object): void => {
+    const objectAssign = (key: IQueryTypes | string, property: object): void => {
       Object.assign(resolver, { [key]: { ...resolver[key], ...property } });
     };
 
-    if (metadata.query) {
-      for (const query of metadata.query) {
-        const name = query.options?.name ?? query.method;
-        objectAssign('Query', {
-          [name]: async (parent, args, ctx, info) =>
-            await this.#buildMethodWithParams(instance, query.method)(parent, args, ctx, info),
-        });
+    const calculateMethods = (type: IQueryTypes): void => {
+      const metadataType = type.toLocaleLowerCase();
+      if (metadata[metadataType]) {
+        for (const value of metadata[metadataType]) {
+          const name = value.options?.name ?? value.method;
+          const objectAssignType = type === 'Field' ? this.#calculateType(value.options) : type
+          let objectAssignValue;
+
+          if (type === 'Subscription') {
+            const subscriptionMethod = () => instance[value.method]();
+              objectAssignValue = {
+                [name]: { subscribe: value.options?.filter ? withFilter(subscriptionMethod, value.options.filter) : subscriptionMethod }
+              };
+          } else {
+            objectAssignValue = {
+              [name]: async (parent, args, ctx, info) =>
+                await this.#buildMethodWithParams(instance, value.method)(parent, args, ctx, info),
+            };
+          }
+
+          objectAssign(objectAssignType, objectAssignValue);
+        }
       }
     }
 
-    if (metadata.field) {
-      for (const field of metadata.field) {
-        const type = this.#calculateType(field.options);
-        const name = field.options?.name ?? field.method;
-        objectAssign(type, {
-          [name]: async (parent, args, ctx, info) =>
-            await this.#buildMethodWithParams(instance, field.method)(parent, args, ctx, info),
-        });
-      }
-    }
-
-    if (metadata.mutation) {
-      for (const mutation of metadata.mutation) {
-        const name = mutation.options?.name ?? mutation.method;
-        objectAssign('Mutation', {
-          [name]: async (parent, args, ctx, info) =>
-            await this.#buildMethodWithParams(instance, mutation.method)(parent, args, ctx, info),
-        });
-      }
-    }
+    calculateMethods('Query');
+    calculateMethods('Field');
+    calculateMethods('Mutation');
+    calculateMethods('Subscription');
 
     return resolver;
   }

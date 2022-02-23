@@ -20,6 +20,11 @@ export interface IMutationOptions {
   name: string;
 }
 
+export interface ISubscriptionOptions {
+  name?: string;
+  filter?: (payload: any, variables: any) => void;
+}
+
 export interface IFieldOptions {
   name?: string;
   type: string | ClassDeclaration;
@@ -27,6 +32,7 @@ export interface IFieldOptions {
 
 export type IResolverQueryMetadata = IResolverMetadata<IQueryOptions>;
 export type IResolverMutationMetadata = IResolverMetadata<IMutationOptions>;
+export type IResolverSubscriptionMetadata = IResolverMetadata<ISubscriptionOptions>;
 export type IResolverFieldMetadata = Required<IResolverMetadata<IFieldOptions>>;
 
 export interface IResolverServiceMetadata {
@@ -34,4 +40,5 @@ export interface IResolverServiceMetadata {
   query: IResolverQueryMetadata[];
   field?: IResolverFieldMetadata[];
   mutation?: IResolverMutationMetadata[];
+  subscription?: IResolverSubscriptionMetadata[];
 }
