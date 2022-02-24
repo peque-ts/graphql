@@ -1,3 +1,5 @@
+import { withFilter } from 'graphql-subscriptions';
+
 import {
   ResolverFieldsMetadata,
   ResolverMutationsMetadata,
@@ -16,7 +18,6 @@ import {
 } from '../../interfaces';
 import { isClass } from '../../utils/class.utils';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
-import { withFilter } from 'graphql-subscriptions';
 
 export class PequeGraphQLService {
   #calculateType(options: IFieldOptions): string {
@@ -67,14 +68,18 @@ export class PequeGraphQLService {
       if (metadata[metadataType]) {
         for (const value of metadata[metadataType]) {
           const name = value.options?.name ?? value.method;
-          const objectAssignType = type === 'Field' ? this.#calculateType(value.options) : type
+          const objectAssignType = type === 'Field' ? this.#calculateType(value.options) : type;
           let objectAssignValue;
 
           if (type === 'Subscription') {
             const subscriptionMethod = () => instance[value.method]();
-              objectAssignValue = {
-                [name]: { subscribe: value.options?.filter ? withFilter(subscriptionMethod, value.options.filter) : subscriptionMethod }
-              };
+            objectAssignValue = {
+              [name]: {
+                subscribe: value.options?.filter
+                  ? withFilter(subscriptionMethod, value.options.filter)
+                  : subscriptionMethod,
+              },
+            };
           } else {
             objectAssignValue = {
               [name]: async (parent, args, ctx, info) =>
@@ -85,7 +90,7 @@ export class PequeGraphQLService {
           objectAssign(objectAssignType, objectAssignValue);
         }
       }
-    }
+    };
 
     calculateMethods('Query');
     calculateMethods('Field');

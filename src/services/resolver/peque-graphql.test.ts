@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import { gql } from 'apollo-server-express';
+import { PubSub } from 'graphql-subscriptions';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 
@@ -8,7 +9,6 @@ import { createGraphQLServer } from '../../../test/test.utils';
 import { Args, Field, Mutation, Parent, Query, Resolver, Subscription } from '../../decorators';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 import { PequeGraphQL } from './peque-graphql';
-import { PubSub } from 'graphql-subscriptions';
 
 const test = suite('ResolverService');
 
@@ -55,10 +55,10 @@ test.before(async (context) => {
           properties: [
             { locationId: 1, property: 'property 1' },
             { locationId: 1, property: 'property 2' },
-          ]
+          ],
         },
-        family: { userId: 1, father: 'father', mother: 'mother' }
-      }
+        family: { userId: 1, father: 'father', mother: 'mother' },
+      };
       pubsub.publish('USER_CREATED', user);
       return Number(args.id);
     }

@@ -1,4 +1,4 @@
-import { ClassDeclaration, IResolverParamType } from './types';
+import { ClassDeclaration, IResolverParamType, ISubscriptionFilterFunction } from './types';
 
 export interface IResolverParameterMetadata {
   method: string;
@@ -22,7 +22,7 @@ export interface IMutationOptions {
 
 export interface ISubscriptionOptions {
   name?: string;
-  filter?: (payload: any, variables: any) => void;
+  filter?: ISubscriptionFilterFunction;
 }
 
 export interface IFieldOptions {
