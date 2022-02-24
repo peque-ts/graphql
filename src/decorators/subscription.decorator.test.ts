@@ -4,8 +4,9 @@ import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 
 import { ResolverSubscriptionMetadata } from '../constants/metadata.constants';
-import { IResolverSubscriptionMetadata, ISubscriptionFilterFunction } from '../interfaces';
+import { IResolverSubscriptionMetadata } from '../interfaces';
 import { Subscription } from './subscription.decorator';
+import { ISubscriptionFilterFunction } from './subscription.decorator.types';
 
 const test = suite('@Subscription');
 

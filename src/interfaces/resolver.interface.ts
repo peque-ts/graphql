@@ -1,4 +1,5 @@
-import { ClassDeclaration, IResolverParamType, ISubscriptionFilterFunction } from './types';
+import { ISubscriptionFilterFunction } from '../decorators/subscription.decorator.types';
+import { ClassDeclaration, IResolverParamType } from './types';
 
 export interface IResolverParameterMetadata {
   method: string;
