@@ -1,7 +1,4 @@
-import {
-  IResolvers,
-  ResolverDeclaration,
-} from '../../interfaces';
+import { IResolvers, ResolverDeclaration } from '../../interfaces';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 import { ResolverMethodBuilder } from './resolver-method-builder.class';
 

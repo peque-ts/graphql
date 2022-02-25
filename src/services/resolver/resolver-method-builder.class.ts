@@ -1,19 +1,23 @@
-import {
-  ClassDeclaration,
-  IFieldOptions,
-  ISDLTypes,
-  IResolverFunction,
-  IResolverParamType,
-  IResolverServiceMetadata,
-  ResolverDeclaration, IResolvers
-} from '../../interfaces';
+import { withFilter } from 'graphql-subscriptions';
+
 import {
   ResolverFieldsMetadata,
   ResolverMutationsMetadata,
-  ResolverParametersMetadata, ResolverQueriesMetadata, ResolverSubscriptionMetadata
+  ResolverParametersMetadata,
+  ResolverQueriesMetadata,
+  ResolverSubscriptionMetadata,
 } from '../../constants/metadata.constants';
+import {
+  ClassDeclaration,
+  IFieldOptions,
+  IResolverFunction,
+  IResolverParamType,
+  IResolvers,
+  IResolverServiceMetadata,
+  ISDLTypes,
+  ResolverDeclaration,
+} from '../../interfaces';
 import { isClass } from '../../utils/class.utils';
-import { withFilter } from 'graphql-subscriptions';
 
 export class ResolverMethodBuilder {
   readonly #instance: InstanceType<ResolverDeclaration>;
@@ -21,8 +25,8 @@ export class ResolverMethodBuilder {
 
   #method: Record<ISDLTypes, () => unknown> = {
     Field: (): unknown => {
-      const object = { };
-      for (const value of (this.#metadata.field ?? [])) {
+      const object = {};
+      for (const value of this.#metadata.field ?? []) {
         const key = this.#calculateType(value.options);
         const property = value.options?.name ?? value.method;
         const propertyValue = {
@@ -49,7 +53,7 @@ export class ResolverMethodBuilder {
     },
     Mutation: (): unknown => {
       const object = { Mutation: {} };
-      for (const value of (this.#metadata.mutation ?? [])) {
+      for (const value of this.#metadata.mutation ?? []) {
         const property = value.options?.name ?? value.method;
         const propertyValue = {
           [property]: async (parent, args, ctx, info) =>
@@ -62,13 +66,13 @@ export class ResolverMethodBuilder {
     },
     Subscription: (): unknown => {
       const object = { Subscription: {} };
-      for (const value of (this.#metadata.subscription ?? [])) {
+      for (const value of this.#metadata.subscription ?? []) {
         const property = value.options?.name ?? value.method;
         const subscriptionMethod = () => this.#instance[value.method]();
         const subscribe = { subscribe: subscriptionMethod };
 
         if (value.options?.filter) {
-          subscribe.subscribe = withFilter(subscriptionMethod, value.options.filter)
+          subscribe.subscribe = withFilter(subscriptionMethod, value.options.filter);
         }
 
         const propertyValue = { [property]: subscribe };
@@ -76,8 +80,8 @@ export class ResolverMethodBuilder {
       }
 
       return object;
-    }
-  }
+    },
+  };
 
   constructor(instance: InstanceType<ResolverDeclaration>) {
     this.#instance = instance;

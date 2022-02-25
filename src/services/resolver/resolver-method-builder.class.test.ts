@@ -1,5 +1,6 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
+
 import { Field, Mutation, Query, Resolver, Subscription } from '../../decorators';
 import { ResolverMethodBuilder } from './resolver-method-builder.class';
 
