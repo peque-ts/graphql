@@ -11,7 +11,7 @@ import { ISubscriptionFilterFunction } from './subscription.decorator.types';
 const test = suite('@Subscription');
 
 test('should load @Subscription metadata', async () => {
-  const filterFn: ISubscriptionFilterFunction = (payload, variables) => 0;
+  const filterFn: ISubscriptionFilterFunction = (payload, variables) => true;
   const metadata: IResolverSubscriptionMetadata[] = [
     { method: 'methodOne', options: undefined },
     { method: 'methodTwo', options: { name: 'location' } },
