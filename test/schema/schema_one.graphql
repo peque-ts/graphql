@@ -31,3 +31,7 @@ type Location {
 type Mutation {
   insertUser(id: ID!, name: String!, surname: String!, location: ID!): ID!
 }
+
+type Subscription {
+  userCreated: User
+}
