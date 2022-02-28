@@ -1,20 +1,17 @@
 import 'reflect-metadata';
 
 import { gql } from 'apollo-server-express';
-import { PubSub } from 'graphql-subscriptions';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 
 import { createGraphQLServer } from '../../../test/test.utils';
-import { Args, Field, Mutation, Parent, Query, Resolver, Subscription } from '../../decorators';
+import { Args, Field, Mutation, Parent, Query, Resolver } from '../../decorators';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 import { PequeGraphQL } from './peque-graphql';
 
 const test = suite('ResolverService');
 
 test.before(async (context) => {
-  const pubsub = new PubSub();
-
   @Resolver()
   class ResolverSchemaOne {
     @Query()
@@ -59,13 +56,7 @@ test.before(async (context) => {
         },
         family: { userId: 1, father: 'father', mother: 'mother' },
       };
-      pubsub.publish('USER_CREATED', user);
       return Number(args.id);
-    }
-
-    @Subscription()
-    userCreated(): unknown {
-      return pubsub.asyncIterator('USER_CREATED');
     }
   }
 
