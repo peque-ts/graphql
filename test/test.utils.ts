@@ -2,14 +2,13 @@ import 'cross-fetch/polyfill';
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { ApolloServer } from 'apollo-server-express';
 import fs from 'fs';
-import * as ws from 'ws';
+import ws from 'ws';
 
 import { Server } from 'http';
 import { execute, subscribe } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { IResolvers } from '@graphql-tools/utils';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
-import { createClient } from 'graphql-ws';
 import { ApolloClient, HttpLink, InMemoryCache, split } from 'apollo-boost';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
@@ -63,8 +62,11 @@ export function createGraphQLServerIntegrations(config: Config, server: Server):
 
 export function createApolloClient(): ApolloClient<unknown> {
   const httpLink = new HttpLink({ uri: 'http://localhost:8080/graphql' });
-  const subClient = createClient({ url: 'ws://localhost:8080/graphql', webSocketImpl: ws });
-  const wsLink = new WebSocketLink(subClient);
+  const wsLink = new WebSocketLink({
+    uri: 'ws://localhost:8080/graphql',
+    options: { reconnect: true },
+    webSocketImpl: ws,
+  });
 
   const splitLink = split(
     ({query}) => {
@@ -75,5 +77,5 @@ export function createApolloClient(): ApolloClient<unknown> {
     httpLink
   );
 
-  return new ApolloClient({ link: splitLink, cache: new InMemoryCache()});
+  return new ApolloClient({ link: splitLink, cache: new InMemoryCache({ addTypename: false })});
 }

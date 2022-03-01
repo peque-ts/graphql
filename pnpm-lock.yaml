@@ -28,7 +28,7 @@ specifiers:
   reflect-metadata: ^0.1.13
   rimraf: ^3.0.2
   sinon: ^13.0.0
-  subscriptions-transport-ws: ^0.11.0
+  subscriptions-transport-ws: ~0.11.0
   ts-node: ^10.4.0
   typescript: ^4.5.5
   uvu: ^0.5.3
@@ -835,6 +835,10 @@ packages:
   /array-union/2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
+    dev: true
+
+  /async-limiter/1.0.1:
+    resolution: {integrity: sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==}
     dev: true
 
   /async-retry/1.3.3:
@@ -2129,10 +2133,7 @@ packages:
       graphql: 16.3.0
       iterall: 1.3.0
       symbol-observable: 1.2.0
-      ws: 7.5.7
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
+      ws: 5.2.3
     dev: true
 
   /supports-color/7.2.0:
@@ -2356,17 +2357,10 @@ packages:
     resolution: {integrity: sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=}
     dev: true
 
-  /ws/7.5.7:
-    resolution: {integrity: sha512-KMvVuFzpKBuiIXW3E4u3mySRO2/mCHSyZDJQM5NQ9Q9KHWHWh0NHgfbRMLLrceUK5qAL4ytALJbpRMjixFZh8A==}
-    engines: {node: '>=8.3.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
+  /ws/5.2.3:
+    resolution: {integrity: sha512-jZArVERrMsKUatIdnLzqvcfydI85dvd/Fp1u/VOpfdDWQ4c9qWXe+VIeAbQ5FrDwciAkr+lzofXLz3Kuf26AOA==}
+    dependencies:
+      async-limiter: 1.0.1
     dev: true
 
   /ws/8.5.0:
