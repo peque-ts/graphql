@@ -1,17 +1,17 @@
 import 'cross-fetch/polyfill';
-import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
-import { ApolloServer } from 'apollo-server-express';
-import fs from 'fs';
-import ws from 'ws';
 
-import { Server } from 'http';
-import { execute, subscribe } from 'graphql';
+import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { IResolvers } from '@graphql-tools/utils';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { ApolloClient, HttpLink, InMemoryCache, split } from 'apollo-boost';
 import { WebSocketLink } from 'apollo-link-ws';
+import { ApolloServer } from 'apollo-server-express';
 import { getMainDefinition } from 'apollo-utilities';
+import fs from 'fs';
+import { execute, subscribe } from 'graphql';
+import { Server } from 'http';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+import ws from 'ws';
 
 interface Config {
   schemaPaths: string[];
@@ -43,20 +43,32 @@ export function createGraphQLServerIntegrations(config: Config, server: Server):
   const mergedResolvers = mergeResolvers(config.resolvers);
   const schema = makeExecutableSchema({ typeDefs: mergedTypeDefs, resolvers: mergedResolvers });
 
-  const subscriptionServer = SubscriptionServer.create({ schema, execute, subscribe }, { server, path: '/graphql', });
+  const subscriptionServer = SubscriptionServer.create(
+    {
+      schema,
+      execute,
+      subscribe,
+    },
+    {
+      server,
+      path: '/graphql',
+    },
+  );
 
   return new ApolloServer({
     typeDefs: mergedTypeDefs,
     resolvers: mergedResolvers,
-    plugins: [{
-      async serverWillStart() {
-        return {
-          async drainServer() {
-            subscriptionServer.close();
-          }
-        };
-      }
-    }],
+    plugins: [
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
+    ],
   });
 }
 
@@ -69,13 +81,18 @@ export function createApolloClient(): ApolloClient<unknown> {
   });
 
   const splitLink = split(
-    ({query}) => {
+    ({ query }) => {
       const definition = getMainDefinition(query);
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
     wsLink,
-    httpLink
+    httpLink,
   );
 
-  return new ApolloClient({ link: splitLink, cache: new InMemoryCache({ addTypename: false })});
+  return new ApolloClient({
+    link: splitLink,
+    cache: new InMemoryCache({
+      addTypename: false,
+    }),
+  });
 }

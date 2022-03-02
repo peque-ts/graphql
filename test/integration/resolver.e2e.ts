@@ -1,18 +1,18 @@
 import 'reflect-metadata';
 
+import { ApolloClient } from 'apollo-boost';
 import { gql } from 'apollo-server-express';
+import express from 'express';
+import { PubSub } from 'graphql-subscriptions';
+import { createServer } from 'http';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import express from 'express';
-import { createApolloClient, createGraphQLServerIntegrations } from '../test.utils';
-import { Args, Mutation, Query, Resolver, PequeGraphQL, Subscription } from '../../src';
+import { Args, Mutation, PequeGraphQL, Query, Resolver, Subscription } from '../../src';
 import { ResolverStorage } from '../../src/services';
-import { createServer } from 'http';
-import { PubSub } from 'graphql-subscriptions';
-import { ApolloClient } from 'apollo-boost';
-import { wait } from '../wait';
 import { httpTerminator, killServer } from '../http-terminator';
+import { createApolloClient, createGraphQLServerIntegrations } from '../test.utils';
+import { wait } from '../wait';
 
 const test = suite('Resolvers');
 
