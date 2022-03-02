@@ -11,9 +11,9 @@ export function httpTerminator(server: Server): void {
 }
 
 export function killServer(server: Server): void {
+  server.close();
   for (const socket of sockets) {
     socket.destroy();
   }
-  server.close();
   sockets.clear();
 }
