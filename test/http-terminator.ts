@@ -10,8 +10,11 @@ export function httpTerminator(server: Server): void {
   });
 }
 
-export function killServer(server: Server): void {
-  server.close();
+export async function killServer(server: Server): Promise<void> {
+  await new Promise((resolve) => {
+    server.close(resolve);
+  });
+
   for (const socket of sockets) {
     socket.destroy();
   }

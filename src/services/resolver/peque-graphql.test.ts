@@ -87,7 +87,13 @@ test.before(async (context) => {
     `${__dirname}/../../../test/schema/schema_two.graphql`,
     `${__dirname}/../../../test/schema/schema_three.graphql`,
   ];
-  context.apolloServer = createGraphQLServer({ schemaPaths: context.schemaPaths, resolvers: context.resolvers });
+
+  const { apolloServer } = createGraphQLServer({
+    schemaPaths: context.schemaPaths,
+    resolvers: context.resolvers,
+  });
+
+  context.apolloServer = apolloServer;
 });
 
 test.after(() => {
