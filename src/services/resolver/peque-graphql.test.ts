@@ -4,12 +4,18 @@ import { gql } from 'apollo-server-express';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import { createGraphQLServer } from '../../../test/test.utils';
+import { TestApolloServer } from '../../../test/apollo/test-apollo-server.class';
 import { Args, Field, Mutation, Parent, Query, Resolver } from '../../decorators';
+import { IResolvers } from '../../interfaces';
 import { ResolverStorage } from '../resolver-storage/resolver-storage.service';
 import { PequeGraphQL } from './peque-graphql';
 
-const test = suite('ResolverService');
+interface Context {
+  resolvers: IResolvers[];
+  apolloServer: TestApolloServer;
+}
+
+const test = suite<Context>('ResolverService');
 
 test.before(async (context) => {
   @Resolver()
@@ -77,23 +83,18 @@ test.before(async (context) => {
     { Query: { testTwo: (): string => 'testTwo' } },
   ];
 
-  context.currentResolvers = currentResolvers;
   context.resolvers = PequeGraphQL.build(
     PequeGraphQL.getDeclarations().map((resolver) => new resolver()),
     currentResolvers,
   );
-  context.schemaPaths = [
+  const schemaPaths = [
     `${__dirname}/../../../test/schema/schema_one.graphql`,
     `${__dirname}/../../../test/schema/schema_two.graphql`,
     `${__dirname}/../../../test/schema/schema_three.graphql`,
   ];
 
-  const { apolloServer } = createGraphQLServer({
-    schemaPaths: context.schemaPaths,
-    resolvers: context.resolvers,
-  });
-
-  context.apolloServer = apolloServer;
+  context.apolloServer = new TestApolloServer();
+  context.apolloServer.create({ schemaPaths, resolvers: context.resolvers });
 });
 
 test.after(() => {
@@ -159,7 +160,7 @@ test('should run lib resolvers correctly', async (context) => {
     ],
   };
 
-  const resultOne = await context.apolloServer.executeOperation({ query: queryOne });
+  const resultOne = await context.apolloServer.get().executeOperation({ query: queryOne });
 
   assert.equal(JSON.stringify(resultOne.data), JSON.stringify(resultMatchOne));
 
@@ -180,7 +181,7 @@ test('should run lib resolvers correctly', async (context) => {
     ],
   };
 
-  const resultTwo = await context.apolloServer.executeOperation({
+  const resultTwo = await context.apolloServer.get().executeOperation({
     query: queryTwo,
     variables: { continent: 'europe' },
   });
@@ -197,7 +198,7 @@ test('should run pre-existent resolvers correctly', async (context) => {
 
   const resultMatchOne = { testOne: 'testOne' };
 
-  const resultOne = await context.apolloServer.executeOperation({ query: queryOne });
+  const resultOne = await context.apolloServer.get().executeOperation({ query: queryOne });
 
   assert.equal(JSON.stringify(resultOne.data), JSON.stringify(resultMatchOne));
 
@@ -209,7 +210,7 @@ test('should run pre-existent resolvers correctly', async (context) => {
 
   const resultMatchTwo = { testTwo: 'testTwo' };
 
-  const resultTwo = await context.apolloServer.executeOperation({ query: queryTwo });
+  const resultTwo = await context.apolloServer.get().executeOperation({ query: queryTwo });
 
   assert.equal(JSON.stringify(resultTwo.data), JSON.stringify(resultMatchTwo));
 });

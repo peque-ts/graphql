@@ -1,8 +1,6 @@
 import 'reflect-metadata';
 
-import { ApolloClient } from 'apollo-boost';
-import { WebSocketLink } from 'apollo-link-ws';
-import { ApolloServer, gql } from 'apollo-server-express';
+import { gql } from 'apollo-server-express';
 import express from 'express';
 import { PubSub } from 'graphql-subscriptions';
 import { createServer, Server } from 'http';
@@ -12,16 +10,16 @@ import * as assert from 'uvu/assert';
 
 import { Args, Mutation, PequeGraphQL, Query, Resolver, Subscription } from '../../src';
 import { ResolverStorage } from '../../src/services';
+import { TestApolloClient } from '../apollo/test-apollo-client.class';
+import { TestApolloServer } from '../apollo/test-apollo-server.class';
 import { httpTerminator, killServer } from '../http-terminator';
-import { createApolloClient, createGraphQLServer, createGraphQLSubscriptionServer } from '../test.utils';
 import { wait } from '../wait';
 
 interface Context {
-  apolloServer: ApolloServer;
+  apolloServer: TestApolloServer;
   subscriptionServer: SubscriptionServer;
   httpServer: Server;
-  apolloClient: ApolloClient<unknown>;
-  wsLink: WebSocketLink;
+  apolloClient: TestApolloClient;
   [key: string]: any;
 }
 
@@ -64,19 +62,17 @@ test.before(async (context) => {
   const httpServer = createServer(app);
   httpTerminator(httpServer);
 
-  const { apolloServer, typeDefs, resolvers } = createGraphQLServer({
-    schemaPaths: [`${__dirname}/../schema/schema_resolver_e2e.graphql`],
-    resolvers: PequeGraphQL.build(PequeGraphQL.getDeclarations().map((resolver) => new resolver())),
-  });
+  context.apolloServer = new TestApolloServer();
 
-  await apolloServer.start();
-  apolloServer.applyMiddleware({ app });
+  const schemaPaths = [`${__dirname}/../schema/schema_resolver_e2e.graphql`];
+  const resolvers = PequeGraphQL.build(PequeGraphQL.getDeclarations().map((resolver) => new resolver()));
 
-  const subscriptionServer = createGraphQLSubscriptionServer({ httpServer, typeDefs, resolvers });
+  context.apolloServer.create({ schemaPaths, resolvers }, { httpServer });
+
+  await context.apolloServer.get().start();
+  context.apolloServer.get().applyMiddleware({ app });
 
   context.httpServer = httpServer;
-  context.apolloServer = apolloServer;
-  context.subscriptionServer = subscriptionServer;
 
   await new Promise<void>((resolve) => {
     context.httpServer.listen(8080, () => {
@@ -84,9 +80,8 @@ test.before(async (context) => {
     });
   });
 
-  const { apolloClient, wsLink } = createApolloClient();
-  context.apolloClient = apolloClient;
-  context.wsLink = wsLink;
+  context.apolloClient = new TestApolloClient();
+  context.apolloClient.create();
 });
 
 test.before.each((context) => {
@@ -98,31 +93,11 @@ test.before.each((context) => {
 
 test.after(async (context) => {
   ResolverStorage.clear();
-
-  console.log('stopping client');
-  await context.apolloClient.clearStore();
-  context.apolloClient.stop();
-  (context.wsLink as any).subscriptionClient.close();
-  console.log('stopping client done');
-
-  console.log('stopping subs');
-  context.subscriptionServer.close();
-  console.log('stopping subs done');
-
-  console.log('stopping apollo');
+  await context.apolloClient.stop();
   await context.apolloServer.stop();
-  console.log('stopping apollo done');
-
-  console.log('stopping http');
   await killServer(context.httpServer);
-  console.log('stopping http done');
 });
 
-test('asd', () => {
-  assert.ok(true);
-});
-
-/*
 test('should trigger subscription', async (context) => {
   const query = gql`
     query GetUsers {
@@ -134,7 +109,7 @@ test('should trigger subscription', async (context) => {
     }
   `;
 
-  const result = await context.apolloClient.query({ query });
+  const result = await context.apolloClient.get().query({ query });
   assert.equal(result.data, { users: context.users });
 
   const subscriptionQuery = gql`
@@ -148,9 +123,12 @@ test('should trigger subscription', async (context) => {
   `;
 
   let subscriptionResult;
-  const subscription = context.apolloClient.subscribe({ query: subscriptionQuery }).subscribe((value) => {
-    subscriptionResult = value;
-  });
+  const subscription = context.apolloClient
+    .get()
+    .subscribe({ query: subscriptionQuery })
+    .subscribe((value) => {
+      subscriptionResult = value;
+    });
 
   const mutationQuery = gql`
     mutation CreateUser($createUserId: ID!, $name: String!, $surname: String!) {
@@ -163,7 +141,7 @@ test('should trigger subscription', async (context) => {
   `;
 
   const user = { createUserId: '3', name: 'Jennifer', surname: 'Aniston' };
-  const mutationResult = await context.apolloClient.mutate({
+  const mutationResult = await context.apolloClient.get().mutate({
     mutation: mutationQuery,
     variables: user,
   });
@@ -173,9 +151,7 @@ test('should trigger subscription', async (context) => {
   await wait();
   assert.equal(subscriptionResult.data, { userCreated: context.users[context.users.length - 1] });
 
-  console.log('unsubscribing');
   subscription.unsubscribe();
-  console.log('unsubscribing done');
 });
-*/
+
 test.run();
